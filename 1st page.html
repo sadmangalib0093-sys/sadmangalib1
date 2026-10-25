@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SADMAN GALIB | Professional Gamer</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #090a0f 0%, #171926 50%, #0d1117 100%);
+            --card-bg: rgba(22, 27, 38, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-sub: #94a3b8;
+            --accent-glow: #00f2fe;
+            --accent-purple: #9d4edd;
+            --btn-hover-bg: rgba(255, 255, 255, 0.08);
+            --modal-bg: rgba(15, 18, 28, 0.95);
+        }
+
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(135deg, #eef2f3 0%, #e0eafc 100%);
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(0, 0, 0, 0.08);
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --accent-glow: #0284c7;
+            --accent-purple: #7c3aed;
+            --btn-hover-bg: rgba(0, 0, 0, 0.04);
+            --modal-bg: rgba(255, 255, 255, 0.98);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Canvas background particles */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header Controls */
+        .top-nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .icon-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        /* Container Card */
+        .profile-container {
+            width: 100%;
+            max-width: 460px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 40px 24px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 1;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Profile Image */
+        .avatar-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+        }
+
+        .avatar-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent-glow), var(--accent-purple));
+            z-index: -1;
+            animation: spinGlow 4s linear infinite;
+        }
+
+        @keyframes spinGlow {
+            0% { filter: blur(8px) rotate(0deg); }
+            50% { filter: blur(12px) rotate(180deg); }
+            100% { filter: blur(8px) rotate(360deg); }
+        }
+
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #0f121c;
+        }
+
+        /* Titles */
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .profile-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-glow);
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .profile-badges {
+            display: inline-flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 16px;
+            border-radius: 50px;
+            border: 1px solid var(--card-border);
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 28px;
+        }
+
+        /* Links Buttons */
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .link-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-card:hover {
+            transform: translateY(-3px);
+            background: var(--btn-hover-bg);
+            border-color: var(--card-border-hover, var(--accent-glow));
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .link-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .link-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        /* Individual Brand Styles */
+        .fb .link-icon { background: linear-gradient(135deg, #1877f2, #0056b3); }
+        .insta .link-icon { background: linear-gradient(135deg, #f09433, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888); }
+        .discord .link-icon { background: linear-gradient(135deg, #5865F2, #404EED); }
+        .gmail .link-icon { background: linear-gradient(135deg, #ea4335, #c5221f); }
+        .hobby .link-icon { background: linear-gradient(135deg, #9d4edd, #7b2cbf); }
+
+        .arrow-icon {
+            font-size: 0.85rem;
+            opacity: 0.5;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .link-card:hover .arrow-icon {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* Modal Base */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--modal-bg);
+            border: 1px solid var(--card-border);
+            width: 100%;
+            max-width: 420px;
+            border-radius: 24px;
+            padding: 28px;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Email Modal Custom */
+        .email-display-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px dashed var(--card-border);
+            padding: 14px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 1rem;
+            color: var(--accent-glow);
+            word-break: break-all;
+            margin: 15px 0;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* Games Grid inside Hobby Modal */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            padding: 14px 10px;
+            border-radius: 14px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-purple);
+        }
+
+        .game-badge-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--accent-glow);
+        }
+
+        .game-name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            background: #00f2fe;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 200;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+            background: #fff;
+            border-radius: 16px;
+            margin: 15px auto;
+            width: fit-content;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Header Navigation Buttons -->
+    <div class="top-nav">
+        <button class="icon-btn" id="qrBtn" title="QR Code"><i class="fa-solid fa-qrcode"></i></button>
+        <button class="icon-btn" id="shareBtn" title="Share Profile"><i class="fa-solid fa-share-nodes"></i></button>
+        <button class="icon-btn" id="themeBtn" title="Toggle Theme"><i class="fa-solid fa-moon"></i></button>
+    </div>
+
+    <!-- Main Card Container -->
+    <div class="profile-container">
+        <!-- Profile Avatar -->
+        <div class="avatar-wrapper">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SadmanGamer&backgroundColor=0f121c" alt="Sadman Galib Avatar" class="profile-img">
+        </div>
+
+        <!-- Name & Title -->
+        <h1 class="profile-name">SADMAN GALIB</h1>
+        <div class="profile-title">Professional Gamer</div>
+        <div class="profile-badges">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Editor • Gamer • Student
+        </div>
+
+        <!-- Social Links List -->
+        <div class="links-list">
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/sadmangalib0093" target="_blank" class="link-card fb">
+                <div class="link-left">
+                    <div class="link-icon"><i class="fa-brands fa-facebook-f"></i></div>
+                    <span>Facebook</span>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </a>
+
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/saad_galib_/?hl=en" target="_blank" class="link-card insta">
+                <div class="link-left">
+                    <div class="link-icon"><i class="fa-brands fa-instagram"></i></div>
+                    <span>Instagram</span>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </a>
+
+            <!-- Discord -->
+            <a href="https://discord.gg/GxkVRqMQQ8" target="_blank" class="link-card discord">
+                <div class="link-left">
+                    <div class="link-icon"><i class="fa-brands fa-discord"></i></div>
+                    <span>Discord Server</span>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </a>
+
+            <!-- Gmail -->
+            <div class="link-card gmail" id="gmailLinkBtn">
+                <div class="link-left">
+                    <div class="link-icon"><i class="fa-solid fa-envelope"></i></div>
+                    <span>Gmail / Email</span>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </div>
+
+            <!-- Hobbies & Games -->
+            <div class="link-card hobby" id="hobbyBtn">
+                <div class="link-left">
+                    <div class="link-icon"><i class="fa-solid fa-gamepad"></i></div>
+                    <span>My Hobbies & Games</span>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Modal -->
+    <div class="modal-overlay" id="emailModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal('emailModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-title"><i class="fa-solid fa-envelope" style="color: #ea4335;"></i> Contact Email</div>
+            <p style="color: var(--text-sub); font-size: 0.9rem;">Send an email or copy the address below:</p>
+            <div class="email-display-box" id="emailText">sadmangalib0093@gmail.com</div>
+            <button class="btn-primary" onclick="copyEmail()">
+                <i class="fa-regular fa-copy"></i> Copy Email Address
+            </button>
+        </div>
+    </div>
+
+    <!-- Hobbies Modal -->
+    <div class="modal-overlay" id="hobbyModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal('hobbyModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-title"><i class="fa-solid fa-gamepad" style="color: var(--accent-purple);"></i> My Favorite Games</div>
+            <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 10px;">Primary Hobby: <b>Playing Video Games</b></p>
+            
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="game-badge-icon"><i class="fa-solid fa-fire"></i></div>
+                    <div class="game-name">FREE FIRE</div>
+                </div>
+                <div class="game-card">
+                    <div class="game-badge-icon"><i class="fa-solid fa-wind"></i></div>
+                    <div class="game-name">WHERE WINDS MEET</div>
+                </div>
+                <div class="game-card">
+                    <div class="game-badge-icon"><i class="fa-solid fa-car"></i></div>
+                    <div class="game-name">GTA 5</div>
+                </div>
+                <div class="game-card">
+                    <div class="game-badge-icon"><i class="fa-solid fa-crosshair"></i></div>
+                    <div class="game-name">COD</div>
+                </div>
+                <div class="game-card">
+                    <div class="game-badge-icon"><i class="fa-solid fa-skull"></i></div>
+                    <div class="game-name">BLOOD STRIKE</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div class="modal-overlay" id="qrModal">
+        <div class="modal-box" style="text-align: center;">
+            <button class="modal-close" onclick="closeModal('qrModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-title" style="justify-content: center;"><i class="fa-solid fa-qrcode"></i> Scan QR Code</div>
+            <div id="qrcode"></div>
+            <p style="color: var(--text-sub); font-size: 0.85rem; margin-top: 10px;">Scan to open this link tree on mobile!</p>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">Copied to clipboard!</div>
+
+    <script>
+        // Gmail Modal Trigger
+        document.getElementById('gmailLinkBtn').addEventListener('click', () => {
+            openModal('emailModal');
+        });
+
+        // Hobby Modal Trigger
+        document.getElementById('hobbyBtn').addEventListener('click', () => {
+            openModal('hobbyModal');
+        });
+
+        // Modal Helpers
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Copy Email Function
+        function copyEmail() {
+            const email = document.getElementById('emailText').innerText;
+            navigator.clipboard.writeText(email);
+            showToast("Email address copied!");
+        }
+
+        // Show Toast Function
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // Theme Switcher
+        const themeBtn = document.getElementById('themeBtn');
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            themeBtn.innerHTML = newTheme === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+        });
+
+        // QR Code Generator
+        let qrGenerated = false;
+        document.getElementById('qrBtn').addEventListener('click', () => {
+            openModal('qrModal');
+            if (!qrGenerated) {
+                new QRCode(document.getElementById("qrcode"), {
+                    text: window.location.href,
+                    width: 160,
+                    height: 160
+                });
+                qrGenerated = true;
+            }
+        });
+
+        // Share Link Function
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'SADMAN GALIB Profile',
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                showToast("Profile link copied!");
+            }
+        });
+
+        // Background Particle Effect
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4;
+                this.alpha = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(0, 242, 254, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 40; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+    </script>
+</body>
+</html>
